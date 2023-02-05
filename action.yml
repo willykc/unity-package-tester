@@ -1,0 +1,102 @@
+name: 'Unity package tester'
+description: 'Tests Unity packages on different versions of the Unity Editor.'
+inputs:
+  unityVersion:
+    required: true
+    default: '2020.3.44f1'
+    description: 'Version of unity to use for testing the package. (eg. 2020.3.44f1)'
+  scopedRegistries:
+    required: false
+    default: ''
+    description: 'Scoped registries to use during package import.'
+  customImage:
+    required: false
+    default: ''
+    description: 'Specific docker image that should be used for testing the package.'
+  customParameters:
+    required: false
+    default: ''
+    description: 'Extra parameters to configure the Unity editor run.'
+  testMode:
+    required: false
+    default: 'all'
+    description: 'The type of tests to be run by the test runner.'
+  coverageOptions:
+    required: false
+    default: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;dontClear'
+    description: 'Optional coverage parameters for the -coverageOptions argument.'
+  artifactsPath:
+    required: false
+    default: 'artifacts'
+    description: 'Path where test artifacts should be stored.'
+  useHostNetwork:
+    required: false
+    default: false
+    description: 'Initializes Docker using the host network.'
+  sshAgent:
+    required: false
+    default: ''
+    description: 'SSH Agent path to forward to the container.'
+  gitPrivateToken:
+    required: false
+    default: ''
+    description: 'GitHub Private Access Token (PAT) to pull from GitHub.'
+  githubToken:
+    required: false
+    default: ''
+    description: 'Token to authorize access to the GitHub REST API. If provided, a check run will be created with the test results.'
+  checkName:
+    required: false
+    default: 'Test Results'
+    description: 'Name for the check run that is created when a github token is provided.'
+  chownFilesTo:
+    required: false
+    default: ''
+    description: 'User and optionally group (user or user:group or uid:gid) to give ownership of the resulting build artifacts'
+  unityLicensingServer:
+    required: false
+    default: ''
+    description: 'Url to a unity license server for acquiring floating licenses.'
+outputs:
+  artifactsPath:
+    description: 'Path where the artifacts are stored.'
+    value: ${{ steps.test-job.outputs.artifactsPath }}
+  coveragePath:
+    description: 'Path where the code coverage results are stored.'
+    value: ${{ steps.test-job.outputs.coveragePath }}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: willykc/unity-package-tester
+    - uses: actions/checkout@v3
+      with:
+        path: Packages/package.to.test
+    - run: |
+        sed -i 's/%UNITY_VERSION%/${{ inputs.unityVersion }}/g' ProjectSettings/ProjectVersion.txt
+        cat ProjectSettings/ProjectVersion.txt
+      shell: bash
+    - run: |
+        REGISTRIES=$(cat << EOF
+        ${{ inputs.scopedRegistries }}EOF
+        )
+        awk -v file="$REGISTRIES" 'BEGIN{}/%SCOPED_REGISTRIES%/{gsub("%SCOPED_REGISTRIES%",file)}1' Packages/manifest.json > temp && mv temp Packages/manifest.json
+        cat Packages/manifest.json
+      shell: bash
+    - uses: game-ci/unity-test-runner@v2.1.1
+      id: test-job
+      with:
+        unityVersion: ${{ inputs.unityVersion }}
+        customImage: ${{ inputs.customImage }}
+        customParameters: ${{ inputs.customParameters }}
+        testMode: ${{ inputs.testMode }}
+        coverageOptions: ${{ inputs.coverageOptions }}
+        artifactsPath: ${{ inputs.artifactsPath }}
+        useHostNetwork: ${{ inputs.useHostNetwork }}
+        sshAgent: ${{ inputs.sshAgent }}
+        gitPrivateToken: ${{ inputs.gitPrivateToken }}
+        githubToken: ${{ inputs.githubToken }}
+        checkName: ${{ inputs.checkName }}
+        chownFilesTo: ${{ inputs.chownFilesTo }}
+        unityLicensingServer: ${{ inputs.unityLicensingServer }}
