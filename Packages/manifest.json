@@ -1,7 +1,7 @@
 {
-  "scopedRegistries": [%SCOPED_REGISTRIES%],
+  "scopedRegistries": [],
   "dependencies": {
-    "com.unity.test-framework": "1.1.33",
-    "com.unity.testtools.codecoverage": "1.2.2"
+    "com.unity.test-framework": "%TEST_PACKAGE_VERSION%",
+    "com.unity.testtools.codecoverage": "%COVERAGE_PACKAGE_VERSION%"
   }
 }

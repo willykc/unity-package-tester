@@ -6,7 +6,7 @@ GitHub Action to test Unity packages. It wraps [Unity test runner](https://githu
 
 All [inputs from Unity test runner](https://game.ci/docs/github/test-runner) are supported except for `projectPath`. The input `unityVersion` is mandatory because, contrary to Unity projects, packages are not tied to a specific Unity version.
 
-An extra input called `scopedRegistries` allows to specify scoped registries to use during package import. Enter the value as a comma separated list of scoped registries in JSON, as shown below.
+The `scopedRegistries` input allows to specify scoped registries to use during package import. Enter the value as a comma separated list of scoped registries in JSON, as shown below.
 
 ```yaml
 scopedRegistries: |
@@ -25,6 +25,16 @@ scopedRegistries: |
     ]
   }
 ```
+
+The `testOnlyPackages` input allows to specify test only packages to use during package testing. Enter the value as a comma separated list of packages and versions in JSON, as shown below.
+
+```yaml
+testOnlyPackages: |
+  "com.example.mycompany.tools.test-framework-extension": "1.1.1",
+  "com.example.mycompany.tools.code-analysis": "2.0.4"
+```
+
+The `testPackageVersion` and `coveragePackageVersion` inputs allow to specify the versions of the test framework package and code coverage package respectively.
 
 This Action uses [actions/checkout](https://github.com/actions/checkout) internally, so there's no need use it again. It can be used together with [actions/cache](https://github.com/actions/cache).
 

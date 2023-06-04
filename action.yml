@@ -3,12 +3,24 @@ description: 'Tests Unity packages on different versions of the Unity Editor.'
 inputs:
   unityVersion:
     required: true
-    default: '2020.3.44f1'
+    default: '2020.3.48f1'
     description: 'Version of unity to use for testing the package. (eg. 2020.3.44f1)'
   scopedRegistries:
     required: false
     default: ''
-    description: 'Scoped registries to use during package import.'
+    description: 'Scoped registries to use during package import and testing.'
+  testPackageVersion:
+    required: false
+    default: '1.1.33'
+    description: 'Test framework package version to be used for testing.'
+  coveragePackageVersion:
+    required: false
+    default: '1.2.4'
+    description: 'Code coverage package version to be used for code coverage reporting.'
+  testOnlyPackages:
+    required: false
+    default: ''
+    description: 'List of packages needed only during testing.'
   customImage:
     required: false
     default: ''
@@ -75,14 +87,32 @@ runs:
         path: Packages/package.to.test
     - run: |
         sed -i 's/%UNITY_VERSION%/${{ inputs.unityVersion }}/g' ProjectSettings/ProjectVersion.txt
+        echo -e "\033[32mConfigured host project version:\033[0m"
         cat ProjectSettings/ProjectVersion.txt
-      shell: bash
-    - run: |
-        REGISTRIES=$(cat << EOF
+        echo -e "\033[32m---\033[0m"
+        sed -i 's/%TEST_PACKAGE_VERSION%/${{ inputs.testPackageVersion }}/g' Packages/manifest.json
+        sed -i 's/%COVERAGE_PACKAGE_VERSION%/${{ inputs.coveragePackageVersion }}/g' Packages/manifest.json
+        echo -e "\033[32mConfigured test and code coverage package versions:\033[0m"
+        cat Packages/manifest.json
+        echo -e "\033[32m---\033[0m"
+        SCOPED_REGISTRIES=$(cat << 'EOF'
         ${{ inputs.scopedRegistries }}EOF
         )
-        awk -v file="$REGISTRIES" 'BEGIN{}/%SCOPED_REGISTRIES%/{gsub("%SCOPED_REGISTRIES%",file)}1' Packages/manifest.json > temp && mv temp Packages/manifest.json
-        cat Packages/manifest.json
+        if ! [ -z "${SCOPED_REGISTRIES}" ]; then
+          sed -i "s#\"scopedRegistries\": \[#\"scopedRegistries\": [\n    ${SCOPED_REGISTRIES//$'\n'/\\n    }\n  #g" Packages/manifest.json
+          echo -e "\033[32mConfigured scoped registries:\033[0m"
+          cat Packages/manifest.json
+          echo -e "\033[32m---\033[0m"
+        fi
+        TEST_ONLY_PACKAGES=$(cat << 'EOF'
+        ${{ inputs.testOnlyPackages }}EOF
+        )
+        if ! [ -z "${TEST_ONLY_PACKAGES}" ]; then
+          sed -i "s#\"dependencies\": {#\"dependencies\": {\n    ${TEST_ONLY_PACKAGES//$'\n'/\\n    },#g" Packages/manifest.json
+          echo -e "\033[32mConfigured test only packages:\033[0m"
+          cat Packages/manifest.json
+          echo -e "\033[32m---\033[0m"
+        fi
       shell: bash
     - uses: game-ci/unity-test-runner@v2.1.1
       id: test-job
