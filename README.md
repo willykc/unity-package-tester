@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [2020.3.44f1, 2021.3.17f1, 2022.2.5f1]
+        version: [2020.3.48f1, 2021.3.30f1, 2022.3.10f1]
     steps:
       - uses: actions/cache@v3
         with:
@@ -57,7 +57,7 @@ jobs:
           key: Library-${{ matrix.version }}
           restore-keys: |
             Library-
-      - uses: willykc/unity-package-tester@v1
+      - uses: willykc/unity-package-tester@v2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
