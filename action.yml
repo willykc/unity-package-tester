@@ -114,7 +114,7 @@ runs:
           echo -e "\033[32m---\033[0m"
         fi
       shell: bash
-    - uses: game-ci/unity-test-runner@v2.1.1
+    - uses: game-ci/unity-test-runner@v3.1.0
       id: test-job
       with:
         unityVersion: ${{ inputs.unityVersion }}
