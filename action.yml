@@ -3,7 +3,7 @@ description: 'Tests Unity packages on different versions of the Unity Editor.'
 inputs:
   unityVersion:
     required: true
-    default: '2020.3.48f1'
+    default: '2021.3.40f1'
     description: 'Version of unity to use for testing the package. (eg. 2020.3.44f1)'
   scopedRegistries:
     required: false
@@ -11,11 +11,11 @@ inputs:
     description: 'Scoped registries to use during package import and testing.'
   testPackageVersion:
     required: false
-    default: '1.1.33'
+    default: '1.4.4'
     description: 'Test framework package version to be used for testing.'
   coveragePackageVersion:
     required: false
-    default: '1.2.4'
+    default: '1.2.5'
     description: 'Code coverage package version to be used for code coverage reporting.'
   testOnlyPackages:
     required: false
@@ -79,10 +79,10 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: willykc/unity-package-tester
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: Packages/package.to.test
     - run: |
@@ -114,7 +114,7 @@ runs:
           echo -e "\033[32m---\033[0m"
         fi
       shell: bash
-    - uses: game-ci/unity-test-runner@v3.1.0
+    - uses: game-ci/unity-test-runner@v4.3.1
       id: test-job
       with:
         unityVersion: ${{ inputs.unityVersion }}

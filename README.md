@@ -4,9 +4,9 @@ GitHub Action to test Unity packages. It wraps [Unity test runner](https://githu
 
 [Activation](https://game.ci/docs/github/activation) steps must be followed before using this action.
 
-All [inputs from Unity test runner](https://game.ci/docs/github/test-runner) are supported except for `projectPath`. The input `unityVersion` is mandatory because, contrary to Unity projects, packages are not tied to a specific Unity version.
+Most of the [inputs from Unity test runner](https://game.ci/docs/github/test-runner) are supported except for `projectPath`. The input `unityVersion` is mandatory because, contrary to Unity projects, packages are not tied to a single Unity version.
 
-The `scopedRegistries` input allows to specify scoped registries to use during package import. Enter the value as a comma separated list of scoped registries in JSON, as shown below.
+The `scopedRegistries` input parameter allows to specify scoped registries to use during package import. Enter the value as a comma separated list of scoped registries in JSON, as shown below.
 
 ```yaml
 scopedRegistries: |
@@ -26,7 +26,7 @@ scopedRegistries: |
   }
 ```
 
-The `testOnlyPackages` input allows to specify test only packages to use during package testing. Enter the value as a comma separated list of packages and versions in JSON, as shown below.
+The `testOnlyPackages` input parameter allows to specify test only packages to use during package testing. Enter the value as a comma separated list of packages and versions in JSON, as shown below.
 
 ```yaml
 testOnlyPackages: |
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [2020.3.48f1, 2021.3.30f1, 2022.3.10f1]
+        version: [2020.3.48f1, 2021.3.40f1, 2022.3.36f1]
     steps:
       - uses: actions/cache@v3
         with:
@@ -57,7 +57,7 @@ jobs:
           key: Library-${{ matrix.version }}
           restore-keys: |
             Library-
-      - uses: willykc/unity-package-tester@v2
+      - uses: willykc/unity-package-tester@v3
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
